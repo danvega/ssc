@@ -10,9 +10,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -35,20 +33,6 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(
-                        authorizeHttp -> {
-                            authorizeHttp.requestMatchers("/").permitAll();
-                            authorizeHttp.anyRequest().authenticated();
-                        }
-                )
-                .formLogin(withDefaults())
-                .build();
-    }
-
-    @Bean
-    @Order(3)
     SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher(AntPathRequestMatcher.antMatcher("/h2-console/**"))
@@ -59,6 +43,22 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions().disable())
                 .build();
     }
+
+    @Bean
+    @Order(3)
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .authorizeHttpRequests(auth -> {
+                        auth.requestMatchers("/").permitAll();
+                        auth.requestMatchers("/error").permitAll();
+                        auth.anyRequest().authenticated();
+                    }
+                )
+                .formLogin(withDefaults())
+                .build();
+    }
+
+
 
 
     @Bean
